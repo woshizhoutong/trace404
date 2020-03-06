@@ -1,0 +1,60 @@
+state,name,case
+AL,Alabama,0
+AK,Alaska,0
+AS,American Samoa,0
+AZ,Arizona,1
+AR,Arkansas,0
+CA,California,24
+CO,Colorado,0
+CT,Connecticut,0
+DE,Delaware,0
+DC,District Of Columbia,0
+FM,Federated States Of Micronesia,0
+FL,Florida,2
+GA,Georgia,2
+GU,Guam,0
+HI,Hawaii,0
+ID,Idaho,0
+IL,Illinois,4
+IN,Indiana,0
+IA,Iowa,0
+KS,Kansas,0
+KY,Kentucky,0
+LA,Louisiana,0
+ME,Maine,0
+MH,Marshall Islands,0
+MD,Maryland,0
+MA,Massachusetts,2
+MI,Michigan,0
+MN,Minnesota,0
+MS,Mississippi,0
+MO,Missouri,0
+MT,Montana,0
+NE,Nebraska,0
+NV,Nevada,0
+NH,New Hampshire,1
+NJ,New Jersey,0
+NM,New Mexico,0
+NY,New York,1
+NC,North Carolina,0
+ND,North Dakota,0
+MP,Northern Mariana Islands,0
+OH,Ohio,0
+OK,Oklahoma,0
+OR,Oregon,3
+PW,Palau,0
+PA,Pennsylvania,0
+PR,Puerto Rico,0
+RI,Rhode Island,2
+SC,South Carolina,0
+SD,South Dakota,0
+TN,Tennessee,0
+TX,Texas,4
+UT,Utah,0
+VT,Vermont,0
+VI,Virgin Islands,0
+VA,Virginia,0
+WA,Washington,18
+WV,West Virginia,0
+WI,Wisconsin,1
+WY,Wyoming,0
