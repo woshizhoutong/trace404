@@ -21,7 +21,7 @@ docker run -p 3306:3306 --name db_test -e MYSQL_ROOT_PASSWORD=my-secret-pw -d my
 #### Access local mysql DB
 mysql -h 127.0.0.1 -P 3306 -u root -p
 
-create a database named "db_test" with commnad:
+create a database named "db_test" with command:
 
 CREATE DATABASE db_test;
 
