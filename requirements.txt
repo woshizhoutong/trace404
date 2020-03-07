@@ -1,6 +1,5 @@
 flask
 requests
-flask-sqlalchemy
 flask-basicauth
 pyglib
 cachetools
@@ -8,3 +7,5 @@ attrs
 newsapi-python
 APScheduler==3.6.3
 PyGithub
+SQLAlchemy==1.3.13
+pymysql

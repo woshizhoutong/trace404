@@ -4,9 +4,13 @@ import json
 import os
 import flask
 import datetime
+
+import sqlalchemy
+
 from service import news_api_util
 from service import github_jhu_data
 from apscheduler.schedulers.background import BackgroundScheduler
+from db import db_setup
 
 app = flask.Flask(__name__)
 
@@ -49,21 +53,31 @@ def get_today_usa_data():
         'sum_of_death': sum_of_death,
         'sum_of_recovered': sum_of_recovered,
         'data': [vars(ob) for ob in data_list],
-        'last_updated_at': last_updated_at
+        # times 1000 to change the time to milliseconds
+        'last_updated_at': last_updated_at * 1000
     }
     json_string = json.dumps(response)
     return json_string
+
 
 def corona_virus_data_process():
     print('Loading daily report from github.')
     github_jhu_data.daily_data_process()
 
 
+    # id = attr.ib()
+    # country = attr.ib()
+    # state = attr.ib()
+    # state_name = attr.ib()
+    # confirmed_case = attr.ib()
+    # recovered_case = attr.ib()
+    # death_case = attr.ib()
+
+db_setup.create_tables()
 scheduler = BackgroundScheduler()
 corona_virus_data_process()
 job = scheduler.add_job(corona_virus_data_process, 'interval', minutes=60)
 scheduler.start()
-
 
 
 if __name__ == "__main__":
