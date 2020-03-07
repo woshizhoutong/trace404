@@ -10,6 +10,7 @@ I am also using GCP to auto manage the https ssl for my domain 404trace.com.
 4. Stream log: gcloud app logs tail -s default
 
 ### How to run locally
+
 #### Install python required packages with 
 pip install -r requirements.txt
 
