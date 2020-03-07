@@ -3,7 +3,7 @@ from urllib.parse import quote
 import requests
 import json
 from cachetools import cached, LRUCache, TTLCache
-from models.news import News
+from models.news import create_news
 import uuid
 from newsapi import NewsApiClient
 
@@ -30,16 +30,7 @@ def read_from_news_api(query, from_date, to_date, query_in_title):
 
     news_list = []
     for item in response['articles']:
-        news = News(
-            id=item['url'],
-            title=item['title'],
-            url=item['url'],
-            img_url=item['urlToImage'],
-            description=item['description'],
-            publishedAt=item['publishedAt'],
-            source=item['source']['name']
-        )
-        news_list.append(news)
+        news_list.append(create_news(item))
 
     return news_list
 
