@@ -24,6 +24,11 @@ def coronavirus():
     return flask.render_template('index.html')
 
 
+@app.route("/news_preview")
+def news_preview():
+    return flask.render_template('single.html')
+
+
 @app.route("/news")
 def get_news():
     query = flask.request.args.get('q')

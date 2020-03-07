@@ -17,9 +17,16 @@ pip install -r requirements.txt
 Make sure you have Docker installed. You may find the download img from here https://docs.docker.com/install/.
 
 docker run -p 3306:3306 --name db_test -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:latest
+
+#### Access local mysql DB
 mysql -h 127.0.0.1 -P 3306 -u root -p
 
-uncomment the setting code for local db in db_setup.py.
+create a database named "db_test" with commnad:
+
+CREATE DATABASE db_test;
+
 
 #### Run Flask with
+uncomment the setting code for local db in db_setup.py.
+
 python3 main.py
