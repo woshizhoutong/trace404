@@ -84,7 +84,6 @@ def daily_data_process():
                 db_service.save_corona_virus_data(data)
         except Exception as e:
             print(e)
-            continue
 
 
 def get_today_yesterday_data():
@@ -92,8 +91,10 @@ def get_today_yesterday_data():
         try:
             today_date = datetime.fromtimestamp(db_service.retrieve_last_updated_time_corona_virus_data()) - timedelta(days=i)
             yesterday_date = today_date - timedelta(days=1)
+            print("Reading today's data at {}.".format(today_date.strftime("%m-%d-%Y")))
             today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
                 "%m-%d-%Y")))
+            print("Reading yesterday's data at {}.".format(yesterday_date.strftime("%m-%d-%Y")))
             yesterday_data = read_data_from_github(data_directory_template.format(date=yesterday_date.strftime(
                 "%m-%d-%Y")))
             return today_data, yesterday_data
