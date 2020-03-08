@@ -26,11 +26,14 @@ class News(Base):
 
 
 def create_news(data_item):
+    if data_item['urlToImage'] is None:
+        print(data_item['title'], " image url", data_item['urlToImage'])
     return News(
         id=data_item['url'],
         title=data_item['title'],
         url=data_item['url'],
-        img_url=data_item['urlToImage'],
+        img_url=data_item['urlToImage'] if data_item['urlToImage'] is not None else "https://cdn.browshot.com/static"
+                                                                                    "/images/not-found.png",
         description=data_item['description'],
         publishedAt=data_item['publishedAt'],
         source=data_item['source']['name'])
