@@ -1,10 +1,5 @@
-from urllib.parse import quote
-
-import requests
-import json
 from cachetools import cached, LRUCache, TTLCache
-from models.news import create_news
-import uuid
+from models.models import create_news
 from newsapi import NewsApiClient
 
 # Init
@@ -33,4 +28,3 @@ def read_from_news_api(query, from_date, to_date, query_in_title):
         news_list.append(create_news(item))
 
     return news_list
-

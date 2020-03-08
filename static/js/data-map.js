@@ -7,8 +7,12 @@ function loadDataMap(mapData) {
       let fillKey;
       if (cases > 0 && cases < 5) {
         fillKey = 'VeryLight';
-      } else if (cases >= 5) {
-        fillKey = 'Light'
+      } else if (cases >= 5 && cases <20) {
+        fillKey = 'Light';
+      } else if (cases >= 20 && cases <100) {
+        fillKey = 'Medium';
+      } else {
+        fillKey = 'Heavy';
       }
 
       renderData[key] = {

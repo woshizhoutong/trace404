@@ -1,4 +1,4 @@
-@import url("http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css");
+@import url("https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css");
 body { margin-top:20px; }
 .fa { font-size: 50px;text-align: right;position: absolute;top: 7px;right: 27px;outline: none; }
 a { transition: all .3s ease;-webkit-transition: all .3s ease;-moz-transition: all .3s ease;-o-transition: all .3s ease; }

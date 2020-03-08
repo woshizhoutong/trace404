@@ -8,10 +8,10 @@ import json
 from cachetools import cached, TTLCache
 from github import Github
 import os.path
-from models.corona_virus_data import CoronaVirusData, get_data_delta
+from models.models import CoronaVirusData
 from shutil import copyfile
 from flask import current_app
-from db import db_setup
+from service import db_service
 
 g = Github("tobyzhoudevelop", "Twofactorauthentication1234")
 repo = g.get_repo('CSSEGISandData/COVID-19')
@@ -28,6 +28,7 @@ def read_data_from_github(data_directory):
         rows = list(reader)
     except Exception as e:
         print("Something wrong reading github at {path}. {error}".format(path=data_directory, error=str(e)))
+        raise e
 
     data_map = {}
     for row in rows:
@@ -38,9 +39,11 @@ def read_data_from_github(data_directory):
                 state = "diamond_princess"
             elif "Grand Princess Cruise Ship" == row['Province/State']:
                 state = "grand_princess"
+            elif "," not in row['Province/State']:
+                state = "other"
             else:
-                print(row['Province/State'])
                 state = row['Province/State'].split(',')[1].strip()
+
             if state in data_map:
                 data = data_map[state]
                 data.confirmed_case += int(row['Confirmed'])
@@ -61,39 +64,43 @@ def read_usa_daily_report():
     """
     :return: A tuple, which contains  list of CoronaVirusData, and last_updated_at.
     """
-    return db_setup.retrieve_all_corona_virus_data(), db_setup.retrieve_last_updated_time_corona_virus_data()
+    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data()
 
 
 def daily_data_process():
-    # daily_data_delta_process()
     for i in range(0, 2):
         date = datetime.now() - timedelta(days=i)
         todays_date = date.strftime("%m-%d-%Y")
         data_directory = data_directory_template.format(date=todays_date)
 
-        last_updated_time = db_setup.retrieve_last_updated_time_corona_virus_data()
+        last_updated_time = db_service.retrieve_last_updated_time_corona_virus_data()
         if last_updated_time and datetime.fromtimestamp(last_updated_time).date() >= date.date():
             print("Not Reading data in Github at {path}. Current version at {last_updated_time} is newer".format(
                 path=data_directory, last_updated_time=last_updated_time))
             return
         try:
             data_map = read_data_from_github(data_directory)
+            for data in data_map.values():
+                db_service.save_corona_virus_data(data)
         except Exception as e:
-            continue
-
-        for data in data_map.values():
-            db_setup.save_corona_virus_data(data)
+            print(e)
 
 
 def get_today_yesterday_data():
-    today_date = datetime.fromtimestamp(db_setup.retrieve_last_updated_time_corona_virus_data())
-    yesterday_date = today_date - timedelta(days=1)
-    today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
-        "%m-%d-%Y")))
-    yesterday_data = read_data_from_github(data_directory_template.format(date=yesterday_date.strftime(
-        "%m-%d-%Y")))
-
-    return today_data, yesterday_data
+    for i in range(0, 2):
+        try:
+            today_date = datetime.fromtimestamp(db_service.retrieve_last_updated_time_corona_virus_data()) - timedelta(days=i)
+            yesterday_date = today_date - timedelta(days=1)
+            print("Reading today's data at {}.".format(today_date.strftime("%m-%d-%Y")))
+            today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
+                "%m-%d-%Y")))
+            print("Reading yesterday's data at {}.".format(yesterday_date.strftime("%m-%d-%Y")))
+            yesterday_data = read_data_from_github(data_directory_template.format(date=yesterday_date.strftime(
+                "%m-%d-%Y")))
+            return today_data, yesterday_data
+        except Exception as e:
+            print(e)
+            continue
 
 
 def compute_data_delta():
@@ -114,4 +121,11 @@ def compute_data_delta():
             )
             data_delta_map[data.state] = get_data_delta(data, empty_yesterday_data)
 
-    return data_delta_map
+    return data_delta_map.values()
+
+
+def get_data_delta(cvd_1, cvd_2):
+    return CoronaVirusData(id='', country=cvd_1.country, state=cvd_1.state, state_name=cvd_1.state_name,
+                           confirmed_case=cvd_1.confirmed_case - cvd_2.confirmed_case,
+                           recovered_case=cvd_1.recovered_case - cvd_2.recovered_case,
+                           death_case=cvd_1.death_case - cvd_2.death_case)
