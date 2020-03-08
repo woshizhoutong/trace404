@@ -28,7 +28,7 @@ def read_data_from_github(data_directory):
         rows = list(reader)
     except Exception as e:
         print("Something wrong reading github at {path}. {error}".format(path=data_directory, error=str(e)))
-        raise LookupError("Did not read data from github")
+        raise e
 
     data_map = {}
     for row in rows:
@@ -39,6 +39,8 @@ def read_data_from_github(data_directory):
                 state = "diamond_princess"
             elif "Grand Princess Cruise Ship" == row['Province/State']:
                 state = "grand_princess"
+            elif "," not in row['Province/State']:
+                state = "other"
             else:
                 state = row['Province/State'].split(',')[1].strip()
 
@@ -66,7 +68,6 @@ def read_usa_daily_report():
 
 
 def daily_data_process():
-    # daily_data_delta_process()
     for i in range(0, 2):
         date = datetime.now() - timedelta(days=i)
         todays_date = date.strftime("%m-%d-%Y")
@@ -82,46 +83,23 @@ def daily_data_process():
             for data in data_map.values():
                 db_service.save_corona_virus_data(data)
         except Exception as e:
+            print(e)
             continue
-
-# <<<<<<< HEAD
-# =======
-#         data_map = {}
-#         for row in rows:
-#             country = row['Country/Region']
-#             if country == 'US':
-#                 # if confirmed from diamond princess, JHU mark it with (From Diamond Princess)
-#                 if "(From Diamond Princess)" in row['Province/State']:
-#                     state = "diamond_princess"
-#                 elif "," in row['Province/State']:
-#                     state = row['Province/State'].split(',')[1].strip()
-#                 else:
-#                     continue
-#                 if state in data_map:
-#                     data = data_map[state]
-#                     data.confirmed_case += int(row['Confirmed'])
-#                     data.death_case += int(row['Deaths'])
-#                     data.recovered_case += int(row['Recovered'])
-#                 else:
-#                     data = CoronaVirusData(id='', country=country, state=state, state_name='',
-#                                            confirmed_case=int(row['Confirmed']), death_case=int(row['Deaths']),
-#                                            recovered_case=int(row['Recovered']))
-#                     data_map[state] = data
-#
-# >>>>>>> zhoutong
-#         for data in data_map.values():
-#             db_service.save_corona_virus_data(data)
 
 
 def get_today_yesterday_data():
-    today_date = datetime.fromtimestamp(db_service.retrieve_last_updated_time_corona_virus_data())
-    yesterday_date = today_date - timedelta(days=1)
-    today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
-        "%m-%d-%Y")))
-    yesterday_data = read_data_from_github(data_directory_template.format(date=yesterday_date.strftime(
-        "%m-%d-%Y")))
-
-    return today_data, yesterday_data
+    for i in range(0, 2):
+        try:
+            today_date = datetime.fromtimestamp(db_service.retrieve_last_updated_time_corona_virus_data()) - timedelta(days=i)
+            yesterday_date = today_date - timedelta(days=1)
+            today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
+                "%m-%d-%Y")))
+            yesterday_data = read_data_from_github(data_directory_template.format(date=yesterday_date.strftime(
+                "%m-%d-%Y")))
+            return today_data, yesterday_data
+        except Exception as e:
+            print(e)
+            continue
 
 
 def compute_data_delta():

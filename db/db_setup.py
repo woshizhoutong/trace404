@@ -13,7 +13,7 @@ engine = sqlalchemy.create_engine(
     sqlalchemy.engine.url.URL(
         drivername='mysql+pymysql',
         username='root',
-        password='trace404!',
+        password='',
         database='trace404',
         query={
             'unix_socket': '/cloudsql/{}'.format(cloud_sql_connection_name)
@@ -41,6 +41,8 @@ db_name = credentials.get('database')
 connection_str = f'mysql+pymysql://{db_user}:{db_pwd}@{db_host}:{db_port}/{db_name}'
 engine = sqlalchemy.create_engine(connection_str)
 db = engine.connect()
+
+# uncomment the setting for local test.
 
 Base = declarative_base()
 Base.metadata.bind = engine

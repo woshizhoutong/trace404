@@ -17,10 +17,10 @@ class CoronaVirusData(Base):
 class News(Base):
     __tablename__ = 'news'
     id = Column(String(255), primary_key=True)
-    title = Column(String(255))
+    title = Column(String(2048))
     url = Column(String(255))
     img_url = Column(String(255))
-    description = Column(String(5000))
+    description = Column(String(2048))
     publishedAt = Column(String(255))
     source = Column(String(255))
 

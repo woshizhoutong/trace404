@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="/static/css/aos.css">
 
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/our-style.css">
     <link rel="stylesheet" href="/static/css/metrics-dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
@@ -66,17 +67,26 @@
     <div class="container">
       <div class="row no-gutters">
           <div id="confirmed_cases" class="col text-center">
-            <h4 class="count" id="confirmed_cases_count"></h4>
+            <div>
+              <h4 class="count" id="confirmed_cases_count"></h4>
+              <p class="delta-metrics">Up <span id="confirmed_cases_delta"></span> since yesterday</p>
+            </div>
             <p class="list-group-item-text" style="font-size: 80%;">Confirmed Cases</p>
           </div>
 
           <div id="cured_cases" class="col text-center" data-toggle="tooltip" title="">
-            <h4 class="count" id="cured_cases_count"></h4>
+            <div>
+              <h4 class="count" id="cured_cases_count"></h4>
+              <p class="delta-metrics">Up <span id="cured_cases_delta"></span> since yesterday</p>
+            </div>
             <p class="list-group-item-text" style="font-size: 80%;">Cured Cases</p>
           </div>
           <div id="death_cases" class="col text-center" data-toggle="tooltip" title="">
-            <h4 class="count" id="death_cases_count"></h4>
-            <p class="list-group-item-text" style="font-size: 80%;">Death Cases</p>
+              <div>
+                <h4 class="count" id="death_cases_count"></h4>
+                <p class="delta-metrics">Up <span id="death_cases_delta"></span> since yesterday</p>
+              </div>
+              <p class="list-group-item-text" style="font-size: 80%;">Death Cases</p>
           </div>
       </div>
       <div class="row">
@@ -186,6 +196,19 @@
         // Set death cases.
         let death_cases = res.sum_of_death;
         animateMetricsRampUp(death_cases, $('#death_cases_count'));
+
+        // Set confirmed delta cases.
+        let confirmedCasesDelta = res.sum_of_confirmed_case_delta
+        animateMetricsRampUp(confirmedCasesDelta, $('#confirmed_cases_delta'));
+
+        // Set recovered delta cases.
+        let recoveredCasesDelta = res.sum_of_recovered_case_delta
+        console.log(recoveredCasesDelta)
+        animateMetricsRampUp(recoveredCasesDelta, $('#cured_cases_delta'));
+
+        // Set death delta cases.
+        let deathCasesDelta = res.sum_of_death_case_delta
+        animateMetricsRampUp(deathCasesDelta, $('#death_cases_delta'));
 
         // Set last_updated_at.
         let last_updated_at = new Date(res.last_updated_at);
