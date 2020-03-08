@@ -68,7 +68,7 @@ def get_today_usa_data():
 def corona_virus_data_process():
     print('Loading daily report from github.')
     github_jhu_data.daily_data_process()
-
+    # github_jhu_data.compute_data_delta()
 
     # id = attr.ib()
     # country = attr.ib()

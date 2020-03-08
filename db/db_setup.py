@@ -4,7 +4,6 @@ import sqlalchemy
 
 from models.corona_virus_data import CoronaVirusData
 
-
 cloud_sql_connection_name = 'ordinal-avatar-270006:us-central1:trace404-sql-data'
 
 db = sqlalchemy.create_engine(
@@ -42,8 +41,9 @@ connection_str = f'mysql+pymysql://{db_user}:{db_pwd}@{db_host}:{db_port}/{db_na
 engine = sqlalchemy.create_engine(connection_str)
 db = engine.connect()
 
+
 def create_tables():
-# Create tables (if they don't already exist)
+    # Create tables (if they don't already exist)
     with db.connect() as conn:
         conn.execute(
             """
@@ -94,8 +94,9 @@ def save_corona_virus_data(data_item):
                    confirmed_case=data_item.confirmed_case,
                    recovered_case=data_item.recovered_case,
                    death_case=data_item.death_case)
-        )
+                     )
         return 'save_done'
+
 
 def retrieve_all_corona_virus_data():
     with db.connect() as conn:
@@ -103,11 +104,13 @@ def retrieve_all_corona_virus_data():
             SELECT id, country, state, state_name, confirmed_case, recovered_case, death_case 
             FROM data_items
         """
-        ).fetchall()
+                            ).fetchall()
 
         data_items = []
         for row in rows:
-            data_item = CoronaVirusData(id=row['id'], country=row['country'], state=row['state'], state_name=row['state_name'], confirmed_case=int(row['confirmed_case']), death_case=int(row['death_case']), recovered_case=int(row['recovered_case']))
+            data_item = CoronaVirusData(id=row['id'], country=row['country'], state=row['state'],
+                                        state_name=row['state_name'], confirmed_case=int(row['confirmed_case']),
+                                        death_case=int(row['death_case']), recovered_case=int(row['recovered_case']))
             data_items.append(data_item)
 
         return data_items
