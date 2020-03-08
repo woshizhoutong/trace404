@@ -173,6 +173,7 @@
         method: 'GET',
         dataType: 'json',
       }).done((res, textStatus, jqXHR) => {
+        console.log(res);
         loadDataMap(res.data);
         // Set confirmed cases.
         let confirmedCases = res.sum_of_confirmed;
