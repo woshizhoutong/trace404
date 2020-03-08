@@ -8,10 +8,10 @@ import json
 from cachetools import cached, TTLCache
 from github import Github
 import os.path
-from models.corona_virus_data import CoronaVirusData
+from models.models import CoronaVirusData
 from shutil import copyfile
 from flask import current_app
-from db import db_setup
+from service import db_service
 
 
 g = Github("tobyzhoudevelop", "Twofactorauthentication1234")
@@ -25,7 +25,7 @@ def read_usa_daily_report():
     """
     :return: A tuple, which contains  list of CoronaVirusData, and last_updated_at.
     """
-    return db_setup.retrieve_all_corona_virus_data(), db_setup.retrieve_last_updated_time_corona_virus_data()
+    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data()
 
 
 def daily_data_process():
@@ -34,7 +34,7 @@ def daily_data_process():
         todays_date = date.strftime("%m-%d-%Y")
         data_directory = data_directory_template.format(date=todays_date)
 
-        last_updated_time = db_setup.retrieve_last_updated_time_corona_virus_data()
+        last_updated_time = db_service.retrieve_last_updated_time_corona_virus_data()
         if last_updated_time and datetime.fromtimestamp(last_updated_time).date() >= date.date():
             print("Not Reading data in Github at {path}. Current version at {last_updated_time} is newer".format(path=data_directory, last_updated_time=last_updated_time))
             return
@@ -57,8 +57,10 @@ def daily_data_process():
                 # if confirmed from diamond princess, JHU mark it with (From Diamond Princess)
                 if "(From Diamond Princess)" in row['Province/State']:
                     state = "diamond_princess"
-                else:
+                elif "," in row['Province/State']:
                     state = row['Province/State'].split(',')[1].strip()
+                else:
+                    continue
                 if state in data_map:
                     data = data_map[state]
                     data.confirmed_case += int(row['Confirmed'])
@@ -71,6 +73,6 @@ def daily_data_process():
                     data_map[state] = data
 
         for data in data_map.values():
-            db_setup.save_corona_virus_data(data)
+            db_service.save_corona_virus_data(data)
 
 

@@ -3,7 +3,9 @@ from urllib.parse import quote
 import requests
 import json
 from cachetools import cached, LRUCache, TTLCache
-from models.news import News
+
+from service import db_service
+from models.models import News
 import uuid
 from newsapi import NewsApiClient
 
@@ -39,6 +41,7 @@ def read_from_news_api(query, from_date, to_date, query_in_title):
             publishedAt=item['publishedAt'],
             source=item['source']['name']
         )
+        db_service.save_news(news)
         news_list.append(news)
 
     return news_list
