@@ -36,7 +36,6 @@ def get_news():
 
     news_list = news_api_util.read_from_news_api(query=query, from_date=from_date, to_date=to_date,
                                                  query_in_title=query_in_title)
-
     news_schema = NewsSchema()
     dump_news_list = [news_schema.dump(news) for news in news_list]
     return json.dumps(dump_news_list)
