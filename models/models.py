@@ -12,6 +12,7 @@ class CoronaVirusData(Base):
     recovered_case = Column(Integer)
     death_case = Column(Integer)
     last_update = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    source_file_published_date = Column(TIMESTAMP)
 
 
 class News(Base):

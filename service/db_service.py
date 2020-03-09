@@ -13,14 +13,16 @@ def save_corona_virus_data(data_item):
             ON DUPLICATE KEY UPDATE
             confirmed_case="{confirmed_case}",
             recovered_case="{recovered_case}",
-            death_case="{death_case}"
+            death_case="{death_case}",
+            source_file_published_date="{source_file_published_date}"
         """.format(id=id,
                    country=data_item.country,
                    state=data_item.state,
                    state_name=data_item.state_name,
                    confirmed_case=data_item.confirmed_case,
                    recovered_case=data_item.recovered_case,
-                   death_case=data_item.death_case)
+                   death_case=data_item.death_case,
+                   source_file_published_date=data_item.source_file_published_date)
         )
         return 'save_done'
 
@@ -32,20 +34,19 @@ def retrieve_all_corona_virus_data():
 def retrieve_last_updated_time_corona_virus_data():
     with engine.connect() as conn:
         rows = conn.execute("""
-            SELECT last_update
+            SELECT source_file_published_date
             FROM   data_items
             limit 1
            """).fetchall()
         # timestamp is in second
-        if rows and rows[0]['last_update']:
-            return rows[0]['last_update'].replace(tzinfo=timezone.utc).timestamp()
+        if rows and rows[0]['source_file_published_date']:
+            return rows[0]['source_file_published_date']
         else:
             return None
 
 
 def save_news(news):
     db_session.merge(news)
-
     # Save all pending changes to the database
     db_session.commit()
 

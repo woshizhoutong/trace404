@@ -64,23 +64,27 @@ def read_usa_daily_report():
     """
     :return: A tuple, which contains  list of CoronaVirusData, and last_updated_at.
     """
-    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data()
+    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data().timestamp()
 
 
 def daily_data_process():
     for i in range(0, 2):
-        date = datetime.now() - timedelta(days=i)
-        todays_date = date.strftime("%m-%d-%Y")
-        data_directory = data_directory_template.format(date=todays_date)
+        todays_date = datetime.now().date() - timedelta(days=i)
+        todays_date_str = todays_date.strftime("%m-%d-%Y")
+        datetime_to_todays_midnight = datetime.combine(todays_date, datetime.min.time())
+        data_directory = data_directory_template.format(date=todays_date_str)
 
+        # last_updated_time type is last_updated_time
         last_updated_time = db_service.retrieve_last_updated_time_corona_virus_data()
-        if last_updated_time and datetime.fromtimestamp(last_updated_time).date() >= date.date():
+        if last_updated_time and last_updated_time.date() >= todays_date:
             print("Not Reading data in Github at {path}. Current version at {last_updated_time} is newer".format(
                 path=data_directory, last_updated_time=last_updated_time))
             return
         try:
             data_map = read_data_from_github(data_directory)
             for data in data_map.values():
+                # save the date on the filename in github as published_date, it would be easy to compare later
+                data.source_file_published_date = datetime_to_todays_midnight
                 db_service.save_corona_virus_data(data)
         except Exception as e:
             print(e)
@@ -89,8 +93,9 @@ def daily_data_process():
 def get_today_yesterday_data():
     for i in range(0, 2):
         try:
-            today_date = datetime.fromtimestamp(db_service.retrieve_last_updated_time_corona_virus_data()) - timedelta(days=i)
+            today_date = db_service.retrieve_last_updated_time_corona_virus_data() - timedelta(days=i)
             yesterday_date = today_date - timedelta(days=1)
+
             print("Reading today's data at {}.".format(today_date.strftime("%m-%d-%Y")))
             today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
                 "%m-%d-%Y")))
