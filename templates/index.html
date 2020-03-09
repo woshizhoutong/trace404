@@ -254,7 +254,7 @@
           const news_element =
           `<div class="col-lg-4 mb-4" >
             <div class="entry2">
-                <a href="${url}"><img src="${img_url}" alt="Image" class="img-fluid rounded"></a>
+                <a href="${url}"><img src="${img_url}" onerror="this.src='https://cdn.browshot.com/static/images/not-found.png';" alt="Image" class="img-fluid rounded"></a>
                 <div class="excerpt">
                   <span class="post-category text-white bg-secondary mb-3">Politics</span>
                   <h2><a href="${url}">${title}</a></h2>
