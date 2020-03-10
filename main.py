@@ -35,6 +35,7 @@ def news_page():
         news_schema = NewsSchema()
         news_dict = news_schema.dump(news)
         news_dict['content'] = news_content.content
+        print(news_content.content)
 
     return flask.render_template('post.html', news=news_dict)
 

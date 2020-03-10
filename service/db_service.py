@@ -66,5 +66,5 @@ def retrieve_news_by_id(news_id):
 
 
 def retrieve_news_content_by_id(news_id):
-    results = db_session.query(NewsContent).filter(News.id == news_id).all()
+    results = db_session.query(NewsContent).filter(NewsContent.id == news_id).all()
     return results
