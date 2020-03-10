@@ -59,6 +59,7 @@ function loadDataMap(mapData) {
       done: function(datamap) {
         datamap.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
             focus = geography.id;
+
             $.ajax({
                 url: '/news?query_in_title=coronavirus AND ' + geography.properties.name,
                 type: 'GET',
@@ -75,13 +76,14 @@ function loadDataMap(mapData) {
                   let publishedAt = res[i].publishedAt;
                   let source = res[i].source;
 
+                  let news_link = `/news_page?id=${url}`;
                   const news_element =
                   `<div class="col-lg-4 mb-4" >
                     <div class="entry2">
-                        <a href="${url}"><img src="${img_url}" onerror="this.src='https://cdn.browshot.com/static/images/not-found.png';" alt="Image" class="img-fluid rounded"></a>
+                        <a href="${news_link}"><img src="${img_url}" onerror="this.src='https://cdn.browshot.com/static/images/not-found.png';" alt="Image" class="img-fluid rounded"></a>
                         <div class="excerpt">
                           <span class="post-category text-white bg-secondary mb-3">Politics</span>
-                          <h2><a href="${url}">${title}</a></h2>
+                          <h2><a href="${news_link}">${title}</a></h2>
                           <div class="post-meta align-items-center text-left clearfix">
                             <figure class="author-figure mb-0 mr-3 float-left">From ${source}</figure>
                             <span>-&nbsp; At ${publishedAt}</span>

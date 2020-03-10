@@ -1,7 +1,7 @@
 from datetime import timezone
 
 from db.db_setup import Base, engine, db_session
-from models.models import CoronaVirusData
+from models.models import CoronaVirusData, News, NewsContent
 
 
 def save_corona_virus_data(data_item):
@@ -45,19 +45,26 @@ def retrieve_last_updated_time_corona_virus_data():
             return None
 
 
-def save_news(news):
-    db_session.merge(news)
+def save_news_list(news_list):
+    for news in news_list:
+        db_session.merge(news)
     # Save all pending changes to the database
     db_session.commit()
 
 
-def retrieve_news(news_id):
-    with engine.connect() as conn:
-        rows = conn.execute("""
-            SELECT *
-            FROM news
-            WHERe id={id}
-        """.format(id=news_id)
-        )
-        if rows:
-            return rows[0]
+def save_news_content_list(news_content_list):
+    for news_content in news_content_list:
+        db_session.merge(news_content)
+    # Save all pending changes to the database
+
+    db_session.commit()
+
+
+def retrieve_news_by_id(news_id):
+    results = db_session.query(News).filter(News.id == news_id).all()
+    return results
+
+
+def retrieve_news_content_by_id(news_id):
+    results = db_session.query(NewsContent).filter(NewsContent.id == news_id).all()
+    return results

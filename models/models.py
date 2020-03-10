@@ -1,5 +1,5 @@
 from db.db_setup import Base, engine
-from sqlalchemy import Column, String, Integer, TIMESTAMP, text
+from sqlalchemy import Column, String, Integer, TIMESTAMP, text, Text
 
 
 class CoronaVirusData(Base):
@@ -18,23 +18,18 @@ class CoronaVirusData(Base):
 class News(Base):
     __tablename__ = 'news'
     id = Column(String(255), primary_key=True)
-    title = Column(String(2048))
+    title = Column(String(255))
     url = Column(String(255))
-    img_url = Column(String(255))
+    img_url = Column(String(1024))
     description = Column(String(2048))
     publishedAt = Column(String(255))
     source = Column(String(255))
 
 
-def create_news(data_item):
-    return News(
-        id=data_item['url'],
-        title=data_item['title'],
-        url=data_item['url'],
-        img_url=data_item['urlToImage'],
-        description=data_item['description'],
-        publishedAt=data_item['publishedAt'],
-        source=data_item['source']['name'])
+class NewsContent(Base):
+    __tablename__ = 'news_content'
+    id = Column(String(255), primary_key=True)
+    content = Column(Text)
 
 
 print("Creating database tables...")
