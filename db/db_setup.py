@@ -27,7 +27,7 @@ engine = sqlalchemy.create_engine(
 
 credentials = {
     'username': 'root',
-    'password': 'my-secret-pw',
+    'password': 'hahaha',
     'host': '127.0.0.1',
     'database': 'db_test',
     'port': '3306'}
