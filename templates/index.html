@@ -110,7 +110,7 @@
       <div class="container">
         <div class="row mb-5">
           <div class="col-12">
-            <h2>Recent News Regarding CoronaVirus (COVID-19)</h2>
+            <h2>CoronaVirus News in <span id="news_location">U.S.</span></h2>
           </div>
         </div>
         <div class="row" id="news_container">
@@ -185,6 +185,7 @@
       }).done((res, textStatus, jqXHR) => {
         console.log(res);
         loadDataMap(res.data);
+
         // Set confirmed cases.
         let confirmedCases = res.sum_of_confirmed;
         animateMetricsRampUp(confirmedCases, $('#confirmed_cases_count'));
@@ -238,7 +239,7 @@
 <!--      ```-->
 
       $.ajax({
-        url: '/news?q=coronavirus',
+        url: '/news?q=coronavirus ',
         type: 'GET',
         method: 'GET',
         dataType: 'json',
