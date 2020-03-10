@@ -43,7 +43,6 @@ def news_page():
 def get_news():
     query = flask.request.args.get('q')
     query_in_title = flask.request.args.get('query_in_title', '')
-    print (query_in_title)
     from_date = datetime.datetime.now().strftime("%Y-%m-%d")
     to_date = datetime.datetime.now().strftime("%Y-%m-%d")
 
