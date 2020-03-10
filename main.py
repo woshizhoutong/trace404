@@ -12,6 +12,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 app = flask.Flask(__name__)
 
+
 @app.route("/")
 def index():
     return flask.render_template('index.html')
@@ -35,7 +36,6 @@ def news_page():
         news_schema = NewsSchema()
         news_dict = news_schema.dump(news)
         news_dict['content'] = news_content.content
-        print(news_content.content)
 
     return flask.render_template('post.html', news=news_dict)
 
@@ -99,8 +99,8 @@ def get_today_usa_data():
         'sum_of_confirmed_case_delta': confirmed_case_delta,
         'sum_of_death_case_delta': death_case_delta,
         'sum_of_recovered_case_delta': recovered_case_delta,
-        # times 1000 to change the time to milliseconds
-        'last_updated_at': last_updated_at * 1000
+        # give last_updated_at as string
+        'last_updated_at': last_updated_at.strftime('%m/%d/%Y')
     }
     json_string = json.dumps(response)
     return json_string

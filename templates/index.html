@@ -91,7 +91,7 @@
       </div>
       <div class="row">
         <div class="col text-center" style="font-size: 80%;">
-          CoronaVirus <a href="#" data-toggle="tooltip" title="Diamond Princes Cases Are Not Shown On The Map">Live data</a> in U.S. updated at <u><em><b id="last_updated_at"></b></em></u>
+          CoronaVirus <a href="#" data-toggle="tooltip" title="Diamond Princes Cases Are Not Shown On The Map">Live data</a> in U.S. updated on <u><em><b id="last_updated_at"></b></em></u>
         </div>
       </div>
     </div>
@@ -207,9 +207,7 @@
         animateMetricsRampUp(deathCasesDelta, $('#death_cases_delta'));
 
         // Set last_updated_at.
-        let last_updated_at = new Date(res.last_updated_at);
-        last_updated_at = last_updated_at.customFormat("#MM#/#DD#/#YYYY# #hh#:#mm# #AMPM#");
-        $('#last_updated_at').text(last_updated_at);
+        $('#last_updated_at').text(res.last_updated_at);
 
       }).fail((jqXHR, textStatus, errorThrown) => {
         console.log(errorThrown);
