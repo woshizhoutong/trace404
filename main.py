@@ -5,7 +5,7 @@ import flask
 import datetime
 
 from models.models import News, CoronaVirusData
-from service import news_api_util
+from service import news_api_util, db_service
 from service import github_jhu_data
 from apscheduler.schedulers.background import BackgroundScheduler
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
@@ -24,7 +24,19 @@ def coronavirus():
 
 @app.route("/news_page")
 def news_page():
-    return flask.render_template('post.html')
+    news_id = flask.request.args.get('id')
+    news_list = db_service.retrieve_news_by_id(news_id)
+    news_content_list = db_service.retrieve_news_content_by_id(news_id)
+
+    news_dict = {}
+    if news_list and news_content_list:
+        news = news_list[0]
+        news_content = news_content_list[0]
+        news_schema = NewsSchema()
+        news_dict = news_schema.dump(news)
+        news_dict['content'] = news_content.content
+
+    return flask.render_template('post.html', news=news_dict)
 
 
 @app.route("/news")
