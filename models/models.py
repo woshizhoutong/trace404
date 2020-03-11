@@ -24,7 +24,7 @@ class News(Base):
     description = Column(String(2048))
     publishedAt = Column(String(255))
     source = Column(String(255))
-    content = Column(String(2048))
+    content = Column(String(4096))
 
 
 print("Creating database tables...")
