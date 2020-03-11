@@ -76,6 +76,7 @@ us_state_abbrev = {
     'Wyoming': 'WY',
 }
 
+
 def read_data_from_github(data_directory):
     try:
         print("Reading data in Github at {path}".format(path=data_directory))

@@ -52,7 +52,13 @@ def get_news():
 
 @app.route("/hourly_data_refresh")
 def hourly_update():
-    corona_virus_data_process()
+    # According to GCP doc https://cloud.google.com/appengine/docs/flexible/nodejs/scheduling-jobs-with-cron-yaml
+    # the cron job requests are always sent from "10.0.0.1"
+    if flask.request.headers.get('X-Appengine-Cron'):
+        print('Loading daily report from github.')
+        github_jhu_data.daily_data_process()
+        return "Done"
+    return "Not Authorized"
 
 
 class DataItemSchema(SQLAlchemyAutoSchema):
@@ -105,12 +111,6 @@ def get_today_usa_data():
     }
     json_string = json.dumps(response)
     return json_string
-
-
-def corona_virus_data_process():
-    print('Loading daily report from github.')
-    github_jhu_data.daily_data_process()
-    # github_jhu_data.compute_data_delta()
 
 
 if __name__ == "__main__":

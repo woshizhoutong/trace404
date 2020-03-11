@@ -1,16 +1,16 @@
-from datetime import timezone
-
 from db.db_setup import Base, engine, db_session
 from models.models import CoronaVirusData, News
 from sqlalchemy.dialects.mysql import insert
+from sqlalchemy.sql import text
+from cachetools import cached, LRUCache, TTLCache
 
 
-def save_corona_virus_data(data_items):
+def save_corona_virus_data(data_item):
     id = data_item.country + "|" + data_item.state
     with engine.connect() as conn:
         conn.execute("""
-            INSERT INTO data_items (id, country, state, state_name, confirmed_case, recovered_case, death_case)
-            VALUES ("{id}", "{country}", "{state}", "{state_name}", "{confirmed_case}", "{recovered_case}", "{death_case}")
+            INSERT INTO data_items (id, country, state, state_name, confirmed_case, recovered_case, death_case, source_file_published_date)
+            VALUES ("{id}", "{country}", "{state}", "{state_name}", "{confirmed_case}", "{recovered_case}", "{death_case}", "{source_file_published_date}")
             ON DUPLICATE KEY UPDATE
             confirmed_case="{confirmed_case}",
             recovered_case="{recovered_case}",
@@ -75,6 +75,9 @@ def save_news_content_list(news_content_list):
     db_session.commit()
 
 
+@cached(cache=TTLCache(maxsize=2048, ttl=600))
 def retrieve_news_by_id(news_id):
-    results = db_session.query(News).filter(News.id == news_id).all()
-    return results
+    sql = text("select * from news where id = :news_id")
+    with engine.connect() as conn:
+        result = conn.execute(sql, news_id=news_id).fetchall()
+        return result
