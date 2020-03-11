@@ -27,15 +27,12 @@ def coronavirus():
 def news_page():
     news_id = flask.request.args.get('id')
     news_list = db_service.retrieve_news_by_id(news_id)
-    news_content_list = db_service.retrieve_news_content_by_id(news_id)
 
     news_dict = {}
-    if news_list and news_content_list:
+    if news_list:
         news = news_list[0]
-        news_content = news_content_list[0]
         news_schema = NewsSchema()
         news_dict = news_schema.dump(news)
-        news_dict['content'] = news_content.content
 
     return flask.render_template('post.html', news=news_dict)
 
