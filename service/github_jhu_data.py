@@ -64,7 +64,7 @@ def read_usa_daily_report():
     """
     :return: A tuple, which contains  list of CoronaVirusData, and last_updated_at.
     """
-    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data().timestamp()
+    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data()
 
 
 def daily_data_process():
@@ -86,6 +86,7 @@ def daily_data_process():
                 # save the date on the filename in github as published_date, it would be easy to compare later
                 data.source_file_published_date = datetime_to_todays_midnight
                 db_service.save_corona_virus_data(data)
+            return
         except Exception as e:
             print(e)
 
