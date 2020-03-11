@@ -7,7 +7,6 @@ import datetime
 from models.models import News, CoronaVirusData
 from service import news_api_util, db_service
 from service import github_jhu_data
-from apscheduler.schedulers.background import BackgroundScheduler
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 app = flask.Flask(__name__)
@@ -49,6 +48,11 @@ def get_news():
     news_schema = NewsSchema()
     dump_news_list = [news_schema.dump(news) for news in news_list]
     return json.dumps(dump_news_list)
+
+
+@app.route("/hourly_data_refresh")
+def hourly_update():
+    corona_virus_data_process()
 
 
 class DataItemSchema(SQLAlchemyAutoSchema):
@@ -107,11 +111,6 @@ def corona_virus_data_process():
     print('Loading daily report from github.')
     github_jhu_data.daily_data_process()
     # github_jhu_data.compute_data_delta()
-
-scheduler = BackgroundScheduler()
-corona_virus_data_process()
-job = scheduler.add_job(corona_virus_data_process, 'interval', minutes=60)
-scheduler.start()
 
 
 if __name__ == "__main__":

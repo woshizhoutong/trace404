@@ -1,0 +1,3 @@
+- description: "hourly data refresh"
+  url: /hourly_data_refresh
+  schedule: every 60 minutes
