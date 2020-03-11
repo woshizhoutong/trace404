@@ -133,3 +133,12 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
+
+# vscode related
+.vscode
+
+# Pycharm related
+.idea
+
+# Cloud sql proxy
+cloud_sql_proxy
