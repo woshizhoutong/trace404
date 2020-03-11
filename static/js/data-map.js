@@ -5,7 +5,9 @@ function loadDataMap(mapData) {
       let key = item.state;
       let cases = item.confirmed_case;
       let fillKey;
-      if (cases > 0 && cases < 5) {
+      if (cases == 0) {
+        fillkey = 'Default';
+      } else if (cases > 0 && cases < 5) {
         fillKey = 'VeryLight';
       } else if (cases >= 5 && cases <20) {
         fillKey = 'Light';

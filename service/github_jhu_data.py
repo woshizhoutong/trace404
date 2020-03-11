@@ -18,6 +18,64 @@ repo = g.get_repo('CSSEGISandData/COVID-19')
 data_directory_template = '/csse_covid_19_data/csse_covid_19_daily_reports/{date}.csv'
 
 
+us_state_abbrev = {
+    'Alabama': 'AL',
+    'Alaska': 'AK',
+    'Arizona': 'AZ',
+    'Arkansas': 'AR',
+    'California': 'CA',
+    'Colorado': 'CO',
+    'Connecticut': 'CT',
+    'Delaware': 'DE',
+    'District of Columbia': 'DC',
+    'Florida': 'FL',
+    'Georgia': 'GA',
+    'Hawaii': 'HI',
+    'Idaho': 'ID',
+    'Illinois': 'IL',
+    'Indiana': 'IN',
+    'Iowa': 'IA',
+    'Kansas': 'KS',
+    'Kentucky': 'KY',
+    'Louisiana': 'LA',
+    'Maine': 'ME',
+    'Maryland': 'MD',
+    'Massachusetts': 'MA',
+    'Michigan': 'MI',
+    'Minnesota': 'MN',
+    'Mississippi': 'MS',
+    'Missouri': 'MO',
+    'Montana': 'MT',
+    'Nebraska': 'NE',
+    'Nevada': 'NV',
+    'New Hampshire': 'NH',
+    'New Jersey': 'NJ',
+    'New Mexico': 'NM',
+    'New York': 'NY',
+    'North Carolina': 'NC',
+    'North Dakota': 'ND',
+    'Northern Mariana Islands':'MP',
+    'Ohio': 'OH',
+    'Oklahoma': 'OK',
+    'Oregon': 'OR',
+    'Palau': 'PW',
+    'Pennsylvania': 'PA',
+    'Puerto Rico': 'PR',
+    'Rhode Island': 'RI',
+    'South Carolina': 'SC',
+    'South Dakota': 'SD',
+    'Tennessee': 'TN',
+    'Texas': 'TX',
+    'Utah': 'UT',
+    'Vermont': 'VT',
+    'Virgin Islands': 'VI',
+    'Virginia': 'VA',
+    'Washington': 'WA',
+    'West Virginia': 'WV',
+    'Wisconsin': 'WI',
+    'Wyoming': 'WY',
+}
+
 def read_data_from_github(data_directory):
     try:
         print("Reading data in Github at {path}".format(path=data_directory))
@@ -35,14 +93,12 @@ def read_data_from_github(data_directory):
         country = row['Country/Region']
         if country == 'US':
             # if confirmed from diamond princess, JHU mark it with (From Diamond Princess)
-            if "(From Diamond Princess)" in row['Province/State']:
-                state = "diamond_princess"
-            elif "Grand Princess Cruise Ship" == row['Province/State']:
-                state = "grand_princess"
-            elif "," not in row['Province/State']:
-                state = "other"
-            else:
+            if "," not in row['Province/State'] and row['Province/State'].strip() in us_state_abbrev:
+                state = us_state_abbrev[row['Province/State'].strip()]
+            elif "," in row['Province/State']:
                 state = row['Province/State'].split(',')[1].strip()
+            else:
+                state = 'other'
 
             if state in data_map:
                 data = data_map[state]
