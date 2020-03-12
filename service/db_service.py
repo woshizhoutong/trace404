@@ -5,9 +5,9 @@ from sqlalchemy.sql import text
 from cachetools import cached, LRUCache, TTLCache
 
 
-def save_corona_virus_data(data_items, source_file_published_date, isToday=False):
+def save_corona_virus_data(data_items, source_file_published_date, is_today=False):
     items = []
-    today = 'today' if isToday else 'yesterday'
+    today = 'today' if is_today else 'yesterday'
     for data_item in data_items:
         entry = {
             "id": data_item.country + "|" + data_item.state + "|" + today,
@@ -17,7 +17,7 @@ def save_corona_virus_data(data_items, source_file_published_date, isToday=False
             "confirmed_case": data_item.confirmed_case,
             "recovered_case": data_item.recovered_case,
             "death_case": data_item.death_case,
-            "is_today": isToday,
+            "is_today": is_today,
             "source_file_published_date": source_file_published_date,
         }
         items.append(entry)

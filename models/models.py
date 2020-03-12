@@ -1,6 +1,9 @@
+import logging
+
 from db.db_setup import Base, engine
 from sqlalchemy import Column, String, Integer, TIMESTAMP, text, Text, Boolean
 
+log = logging.getLogger('__main__')
 
 class CoronaVirusData(Base):
     __tablename__ = 'data_items'
@@ -28,6 +31,6 @@ class News(Base):
     content = Column(String(4096))
 
 
-print("Creating database tables...")
+log.info("Creating database tables...")
 Base.metadata.create_all(engine)
-print("Done!")
+log.info(print("Done!"))

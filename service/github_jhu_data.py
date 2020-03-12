@@ -1,5 +1,6 @@
 import base64
 import csv
+import logging
 from datetime import datetime, timedelta, timezone
 from io import StringIO
 
@@ -12,6 +13,8 @@ from models.models import CoronaVirusData
 from shutil import copyfile
 from flask import current_app
 from service import db_service
+
+log = logging.getLogger(__name__)
 
 g = Github("tobyzhoudevelop", "Twofactorauthentication1234")
 repo = g.get_repo('CSSEGISandData/COVID-19')
@@ -79,14 +82,14 @@ us_state_abbrev = {
 
 def read_data_from_github(data_directory):
     try:
-        print("Reading data in Github at {path}".format(path=data_directory))
+        log.info("Reading data in Github at {path}".format(path=data_directory))
         contents = repo.get_contents(data_directory)
         data = contents.decoded_content.decode('UTF-8')
         f = StringIO(data)
         reader = csv.DictReader(f)
         rows = list(reader)
     except Exception as e:
-        print("Something wrong reading github at {path}. {error}".format(path=data_directory, error=str(e)))
+        log.info("Did not read github at {path}. {error}".format(path=data_directory, error=str(e)))
         raise e
 
     data_map = {}
@@ -137,7 +140,7 @@ def daily_data_process():
         # last_updated_time type is last_updated_time
         last_updated_time = db_service.retrieve_last_updated_time_corona_virus_data()
         if last_updated_time and last_updated_time.date() >= todays_date:
-            print("Not Reading data in Github at {path}. Current version at {last_updated_time} is newer".format(
+            log.info("Not Reading data in Github at {path}. Current version at {last_updated_time} is newer".format(
                 path=today_data_directory, last_updated_time=last_updated_time))
             return
 
@@ -145,13 +148,15 @@ def daily_data_process():
             data_map = read_data_from_github(today_data_directory)
             # save the date on the filename in github as published_date, it would be easy to compare later
             datetime_to_todays_midnight = datetime.combine(todays_date, datetime.min.time())
-            db_service.save_corona_virus_data(data_map.values(), datetime_to_todays_midnight, isToday=True)
+            db_service.save_corona_virus_data(data_map.values(), datetime_to_todays_midnight, is_today=True)
 
             data_map = read_data_from_github(yesterday_data_directory)
-            db_service.save_corona_virus_data(data_map.values(), datetime_to_todays_midnight, isToday=False)
-            return
+            db_service.save_corona_virus_data(data_map.values(), datetime_to_todays_midnight, is_today=False)
         except Exception as e:
-            print(e)
+            if i > 0:
+                log.error("Error! Try to read from github jhu data failed at {time} time. {e}".format(time=i + 1, e=str(e)))
+            else:
+                log.info("Try to read from github jhu data failed the {time} time. {e}".format(time=i + 1, e=str(e)))
 
 
 def compute_data_delta():
