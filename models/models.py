@@ -24,12 +24,7 @@ class News(Base):
     description = Column(String(2048))
     publishedAt = Column(String(255))
     source = Column(String(255))
-
-
-class NewsContent(Base):
-    __tablename__ = 'news_content'
-    id = Column(String(255), primary_key=True)
-    content = Column(Text)
+    content = Column(String(4096))
 
 
 print("Creating database tables...")

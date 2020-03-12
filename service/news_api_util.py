@@ -1,5 +1,5 @@
 from cachetools import cached, LRUCache, TTLCache
-from models.models import News, NewsContent
+from models.models import News
 from newsapi import NewsApiClient
 from service import db_service
 
@@ -25,13 +25,9 @@ def read_from_news_api(query, from_date, to_date, query_in_title):
                                           sort_by='relevancy')
 
     news_list = []
-    news_content_list = []
     for item in response['articles']:
         news_list.append(create_news(item))
-        news_content_list.append(create_news_content(item))
-
         db_service.save_news_list(news_list)
-        db_service.save_news_content_list(news_content_list)
 
     return news_list
 
@@ -44,10 +40,5 @@ def create_news(data_item):
         img_url=data_item['urlToImage'],
         description=data_item['description'],
         publishedAt=data_item['publishedAt'],
-        source=data_item['source']['name'])
-
-
-def create_news_content(data_item):
-    return NewsContent(
-        id=data_item['url'],
+        source=data_item['source']['name'],
         content=data_item['content'])

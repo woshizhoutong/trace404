@@ -1,16 +1,16 @@
-from datetime import timezone
-
 from db.db_setup import Base, engine, db_session
-from models.models import CoronaVirusData, News, NewsContent
+from models.models import CoronaVirusData, News
 from sqlalchemy.dialects.mysql import insert
+from sqlalchemy.sql import text
+from cachetools import cached, LRUCache, TTLCache
 
 
 def save_corona_virus_data(data_item):
     id = data_item.country + "|" + data_item.state
     with engine.connect() as conn:
         conn.execute("""
-            INSERT INTO data_items (id, country, state, state_name, confirmed_case, recovered_case, death_case)
-            VALUES ("{id}", "{country}", "{state}", "{state_name}", "{confirmed_case}", "{recovered_case}", "{death_case}")
+            INSERT INTO data_items (id, country, state, state_name, confirmed_case, recovered_case, death_case, source_file_published_date)
+            VALUES ("{id}", "{country}", "{state}", "{state_name}", "{confirmed_case}", "{recovered_case}", "{death_case}", "{source_file_published_date}")
             ON DUPLICATE KEY UPDATE
             confirmed_case="{confirmed_case}",
             recovered_case="{recovered_case}",
@@ -47,26 +47,24 @@ def retrieve_last_updated_time_corona_virus_data():
 
 
 def save_news_list(news_list):
-    # insert_stmt = insert(News).values(
-    #     id='some_existing_id',
-    #     url='inserted value',
-    #     img_url='some_existing_id',
-    #     description='inserted value',
-    #     publishedAt='some_existing_id',
-    #     source='inserted value',
-    #     content=''
-    # )
-    #
-    # on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
-    #     data=insert_stmt.inserted.data,
-    #     status='U'
-    # )
-
-    # conn.execute(on_duplicate_key_stmt)
+    l = []
     for news in news_list:
-        db_session.merge(news)
-    # Save all pending changes to the database
-    db_session.commit()
+        entry = {
+            "id": news.id,
+            "url": news.url,
+            "title": news.title,
+            "img_url": news.img_url,
+            "description": news.description,
+            "publishedAt": news.publishedAt,
+            "source": news.source,
+            "content": news.content,
+        }
+        l.append(entry)
+    insert_stmt = insert(News).values(l)
+
+    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(url=insert_stmt.inserted.url)
+    with engine.connect() as conn:
+        conn.execute(on_duplicate_key_stmt)
 
 
 def save_news_content_list(news_content_list):
@@ -77,11 +75,9 @@ def save_news_content_list(news_content_list):
     db_session.commit()
 
 
+@cached(cache=TTLCache(maxsize=2048, ttl=600))
 def retrieve_news_by_id(news_id):
-    results = db_session.query(News).filter(News.id == news_id).all()
-    return results
-
-
-def retrieve_news_content_by_id(news_id):
-    results = db_session.query(NewsContent).filter(NewsContent.id == news_id).all()
-    return results
+    sql = text("select * from news where id = :news_id")
+    with engine.connect() as conn:
+        result = conn.execute(sql, news_id=news_id).fetchall()
+        return result
