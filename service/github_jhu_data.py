@@ -121,68 +121,62 @@ def read_usa_daily_report():
     """
     :return: A tuple, which contains  list of CoronaVirusData, and last_updated_at.
     """
-    return db_service.retrieve_all_corona_virus_data(), db_service.retrieve_last_updated_time_corona_virus_data()
+    return db_service.retrieve_all_corona_virus_data(is_today=True), db_service.retrieve_last_updated_time_corona_virus_data()
 
 
 def daily_data_process():
     for i in range(0, 2):
         todays_date = datetime.now().date() - timedelta(days=i)
         todays_date_str = todays_date.strftime("%m-%d-%Y")
-        datetime_to_todays_midnight = datetime.combine(todays_date, datetime.min.time())
-        data_directory = data_directory_template.format(date=todays_date_str)
+        today_data_directory = data_directory_template.format(date=todays_date_str)
+
+        yesterday_date = todays_date - timedelta(days=1)
+        yesterday_date_str = yesterday_date.strftime("%m-%d-%Y")
+        yesterday_data_directory = data_directory_template.format(date=yesterday_date_str)
 
         # last_updated_time type is last_updated_time
         last_updated_time = db_service.retrieve_last_updated_time_corona_virus_data()
         if last_updated_time and last_updated_time.date() >= todays_date:
             print("Not Reading data in Github at {path}. Current version at {last_updated_time} is newer".format(
-                path=data_directory, last_updated_time=last_updated_time))
+                path=today_data_directory, last_updated_time=last_updated_time))
             return
+
         try:
-            data_map = read_data_from_github(data_directory)
-            for data in data_map.values():
-                # save the date on the filename in github as published_date, it would be easy to compare later
-                data.source_file_published_date = datetime_to_todays_midnight
-                db_service.save_corona_virus_data(data)
+            data_map = read_data_from_github(today_data_directory)
+            # save the date on the filename in github as published_date, it would be easy to compare later
+            datetime_to_todays_midnight = datetime.combine(todays_date, datetime.min.time())
+            db_service.save_corona_virus_data(data_map.values(), datetime_to_todays_midnight, isToday=True)
+
+            data_map = read_data_from_github(yesterday_data_directory)
+            db_service.save_corona_virus_data(data_map.values(), datetime_to_todays_midnight, isToday=False)
             return
         except Exception as e:
             print(e)
-
-
-def get_today_yesterday_data():
-    for i in range(0, 2):
-        try:
-            today_date = db_service.retrieve_last_updated_time_corona_virus_data() - timedelta(days=i)
-            yesterday_date = today_date - timedelta(days=1)
-
-            print("Reading today's data at {}.".format(today_date.strftime("%m-%d-%Y")))
-            today_data = read_data_from_github(data_directory_template.format(date=today_date.strftime(
-                "%m-%d-%Y")))
-            print("Reading yesterday's data at {}.".format(yesterday_date.strftime("%m-%d-%Y")))
-            yesterday_data = read_data_from_github(data_directory_template.format(date=yesterday_date.strftime(
-                "%m-%d-%Y")))
-            return today_data, yesterday_data
-        except Exception as e:
-            print(e)
-            continue
 
 
 def compute_data_delta():
-    today_data, yesterday_data = get_today_yesterday_data()
+    today_data_items = db_service.retrieve_all_corona_virus_data(is_today=True)
+    yesterday_data_items = db_service.retrieve_all_corona_virus_data(is_today=False)
+
+    yesterday_data_map = {}
+    for yesterday_data_item in yesterday_data_items:
+        yesterday_data_map[yesterday_data_item.state] = yesterday_data_item
+
     data_delta_map = {}
-    for data in today_data.values():
-        if data.state in yesterday_data.keys():
-            data_delta_map[data.state] = get_data_delta(data, yesterday_data[data.state])
+    for today_date_item in today_data_items:
+        if today_date_item.state in yesterday_data_map:
+            data_delta_map[today_date_item.state] = get_data_delta(today_date_item, yesterday_data_map[today_date_item.state])
         else:
             empty_yesterday_data = CoronaVirusData(
                 id='',
-                country=data.country,
-                state=data.state,
-                state_name=data.state_name,
+                country=today_date_item.country,
+                state=today_date_item.state,
+                state_name=today_date_item.state_name,
                 confirmed_case=0,
                 recovered_case=0,
                 death_case=0,
             )
-            data_delta_map[data.state] = get_data_delta(data, empty_yesterday_data)
+            data_delta_map[today_date_item.state] = get_data_delta(today_date_item, empty_yesterday_data)
 
     return data_delta_map.values()
 

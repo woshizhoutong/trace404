@@ -5,31 +5,38 @@ from sqlalchemy.sql import text
 from cachetools import cached, LRUCache, TTLCache
 
 
-def save_corona_virus_data(data_item):
-    id = data_item.country + "|" + data_item.state
-    with engine.connect() as conn:
-        conn.execute("""
-            INSERT INTO data_items (id, country, state, state_name, confirmed_case, recovered_case, death_case, source_file_published_date)
-            VALUES ("{id}", "{country}", "{state}", "{state_name}", "{confirmed_case}", "{recovered_case}", "{death_case}", "{source_file_published_date}")
-            ON DUPLICATE KEY UPDATE
-            confirmed_case="{confirmed_case}",
-            recovered_case="{recovered_case}",
-            death_case="{death_case}",
-            source_file_published_date="{source_file_published_date}"
-        """.format(id=id,
-                   country=data_item.country,
-                   state=data_item.state,
-                   state_name=data_item.state_name,
-                   confirmed_case=data_item.confirmed_case,
-                   recovered_case=data_item.recovered_case,
-                   death_case=data_item.death_case,
-                   source_file_published_date=data_item.source_file_published_date)
-        )
-        return 'save_done'
+def save_corona_virus_data(data_items, source_file_published_date, isToday=False):
+    items = []
+    today = 'today' if isToday else 'yesterday'
+    for data_item in data_items:
+        entry = {
+            "id": data_item.country + "|" + data_item.state + "|" + today,
+            "country": data_item.country,
+            "state": data_item.state,
+            "state_name": data_item.state_name,
+            "confirmed_case": data_item.confirmed_case,
+            "recovered_case": data_item.recovered_case,
+            "death_case": data_item.death_case,
+            "is_today": isToday,
+            "source_file_published_date": source_file_published_date,
+        }
+        items.append(entry)
+    insert_stmt = insert(CoronaVirusData).values(items)
 
-def retrieve_all_corona_virus_data():
-    data_items = db_session.query(CoronaVirusData).all()
-    return data_items
+    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(
+        confirmed_case=insert_stmt.inserted.confirmed_case,
+        recovered_case=insert_stmt.inserted.recovered_case,
+        death_case=insert_stmt.inserted.death_case,
+        source_file_published_data=insert_stmt.inserted.source_file_published_date)
+    with engine.connect() as conn:
+        conn.execute(on_duplicate_key_stmt)
+
+
+def retrieve_all_corona_virus_data(is_today):
+    sql = text("select * from data_items where is_today = :is_today")
+    with engine.connect() as conn:
+        result = conn.execute(sql, is_today=is_today).fetchall()
+        return result
 
 
 def retrieve_last_updated_time_corona_virus_data():

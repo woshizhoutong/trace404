@@ -1,5 +1,5 @@
 from db.db_setup import Base, engine
-from sqlalchemy import Column, String, Integer, TIMESTAMP, text, Text
+from sqlalchemy import Column, String, Integer, TIMESTAMP, text, Text, Boolean
 
 
 class CoronaVirusData(Base):
@@ -11,6 +11,7 @@ class CoronaVirusData(Base):
     confirmed_case = Column(Integer)
     recovered_case = Column(Integer)
     death_case = Column(Integer)
+    is_today = Column(Boolean)
     last_update = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
     source_file_published_date = Column(TIMESTAMP)
 
