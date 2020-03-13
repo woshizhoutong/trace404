@@ -233,12 +233,13 @@
 <!--      ```-->
 
       $.ajax({
-        url: '/api/news?q=coronavirus ',
+        url: '/api/news?q=coronavirus',
         type: 'GET',
         method: 'GET',
         dataType: 'json',
       }).done((res, textStatus, jqXHR) => {
         for (var i = 0; i < res.length; i++) {
+        let id = res[i].id;
           let title = res[i].title;
           let url = res[i].url;
           let img_url = res[i].img_url;
@@ -246,7 +247,7 @@
           let publishedAt = res[i].publishedAt;
           let source = res[i].source;
 
-          let news_link = `/news_page?id=${url}`;
+          let news_link = `/news_page/${id}`;
 
           const news_element =
           `<div class="col-lg-4 mb-4" >

@@ -30,9 +30,8 @@ def coronavirus():
     return flask.render_template('index.html')
 
 
-@app.route("/news_page")
-def news_page():
-    news_id = flask.request.args.get('id')
+@app.route("/news_page/<string:news_id>")
+def news_page(news_id):
     news_list = db_service.retrieve_news_by_id(news_id)
 
     news_dict = {}
