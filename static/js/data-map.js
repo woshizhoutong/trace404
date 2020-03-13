@@ -59,6 +59,10 @@ function loadDataMap(mapData) {
       },
       data: renderData,
       done: function(datamap) {
+        datamap.svg.call(d3.behavior.zoom().on("zoom", redraw));
+        function redraw() {
+            datamap.svg.selectAll("g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        }
         datamap.svg.selectAll('.datamaps-subunit').on('click', function(geography) {
             focus = geography.id;
 
