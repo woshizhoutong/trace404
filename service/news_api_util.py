@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 # Init
-newsapi_clients = [NewsApiClient(api_key='58d7c8cd9cf14565a96c1a7a73ba7611')]
+newsapi_clients = [NewsApiClient(api_key='7729d579e9b049c084574a43f35369b3')]
 
 
 us_state_abbrev = {

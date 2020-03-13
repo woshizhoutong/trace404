@@ -67,6 +67,7 @@ def hourly_update():
     return "Not Authorized"
 
 
+
 class DataItemSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = CoronaVirusData
