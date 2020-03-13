@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import json
+import logging
 import os
+import sys
+
 import flask
 import datetime
 
@@ -10,7 +13,8 @@ from service import github_jhu_data
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 app = flask.Flask(__name__)
-
+logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+                    datefmt='%Y-%m-%d:%H:%M:%S', level=logging.INFO)
 
 @app.route("/")
 def index():
@@ -54,10 +58,11 @@ def get_news():
 def hourly_update():
     # According to GCP doc https://cloud.google.com/appengine/docs/flexible/nodejs/scheduling-jobs-with-cron-yaml
     # the cron job requests are always sent from "10.0.0.1"
-    if flask.request.headers.get('X-Appengine-Cron'):
-        print('Loading daily report from github.')
+    if not flask.request.headers.get('X-Appengine-Cron'):
+        app.logger.info("Loading daily report from github.")
         github_jhu_data.daily_data_process()
         return "Done"
+    app.logger.info("Access to /hourly_data_refresh from non-cron job is rejected.")
     return "Not Authorized"
 
 

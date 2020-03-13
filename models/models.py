@@ -1,6 +1,9 @@
-from db.db_setup import Base, engine
-from sqlalchemy import Column, String, Integer, TIMESTAMP, text, Text
+import logging
 
+from db.db_setup import Base, engine
+from sqlalchemy import Column, String, Integer, TIMESTAMP, text, Text, Boolean
+
+log = logging.getLogger('__main__')
 
 class CoronaVirusData(Base):
     __tablename__ = 'data_items'
@@ -11,6 +14,7 @@ class CoronaVirusData(Base):
     confirmed_case = Column(Integer)
     recovered_case = Column(Integer)
     death_case = Column(Integer)
+    is_today = Column(Boolean)
     last_update = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
     source_file_published_date = Column(TIMESTAMP)
 
@@ -27,6 +31,6 @@ class News(Base):
     content = Column(String(4096))
 
 
-print("Creating database tables...")
+log.info("Creating database tables...")
 Base.metadata.create_all(engine)
-print("Done!")
+log.info(print("Done!"))
