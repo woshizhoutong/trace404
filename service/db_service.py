@@ -27,7 +27,7 @@ def save_corona_virus_data(data_items, source_file_published_date, is_today=Fals
         confirmed_case=insert_stmt.inserted.confirmed_case,
         recovered_case=insert_stmt.inserted.recovered_case,
         death_case=insert_stmt.inserted.death_case,
-        source_file_published_data=insert_stmt.inserted.source_file_published_date)
+        source_file_published_date=insert_stmt.inserted.source_file_published_date)
     with engine.connect() as conn:
         conn.execute(on_duplicate_key_stmt)
 
@@ -65,6 +65,10 @@ def save_news_list(news_list):
             "publishedAt": news.publishedAt,
             "source": news.source,
             "content": news.content,
+            "state": news.state,
+            "country": news.country,
+            "rank_value": 1,
+            "category": "Politics",
         }
         l.append(entry)
     insert_stmt = insert(News).values(l)
@@ -74,17 +78,32 @@ def save_news_list(news_list):
         conn.execute(on_duplicate_key_stmt)
 
 
-def save_news_content_list(news_content_list):
-    for news_content in news_content_list:
-        db_session.merge(news_content)
-    # Save all pending changes to the database
-
-    db_session.commit()
-
-
 @cached(cache=TTLCache(maxsize=2048, ttl=600))
 def retrieve_news_by_id(news_id):
     sql = text("select * from news where id = :news_id")
     with engine.connect() as conn:
         result = conn.execute(sql, news_id=news_id).fetchall()
         return result
+
+
+@cached(cache=TTLCache(maxsize=2048, ttl=600))
+# default the staet to US if no state is specified
+def retrieve_all_serving_news(state_id):
+    result = []
+
+    sql = text("select * from news where state = :state_id and rank_value > 0 order by rank_value")
+    with engine.connect() as conn:
+        result = conn.execute(sql, state_id=state_id).fetchall()
+
+    if not result:
+        sql = text("select * from news where state = :state_id order by last_update limit 100")
+        with engine.connect() as conn:
+            result = conn.execute(sql, state_id=state_id).fetchall()
+
+    return result
+
+
+def clear_all_serving_news():
+    sql = text("update news set rank_value = 0 where rank_value > 0 and rank_value < 100")
+    with engine.connect() as conn:
+        conn.execute(sql)

@@ -29,7 +29,11 @@ class News(Base):
     publishedAt = Column(String(255))
     source = Column(String(255))
     content = Column(String(4096))
-
+    category = Column(String(255))
+    state = Column(String(255))
+    country = Column(String(255))
+    rank_value = Column(Integer)
+    last_update = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
 log.info("Creating database tables...")
 Base.metadata.create_all(engine)

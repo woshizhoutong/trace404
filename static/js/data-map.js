@@ -63,7 +63,7 @@ function loadDataMap(mapData) {
             focus = geography.id;
 
             $.ajax({
-                url: '/news?query_in_title=coronavirus AND ' + geography.properties.name,
+                url: '/api/news?state=' + geography.properties.name,
                 type: 'GET',
                 method: 'GET',
                 dataType: 'json',

@@ -7,6 +7,8 @@ import sys
 import flask
 import datetime
 
+from flask_cors import CORS
+
 from models.models import News, CoronaVirusData
 from service import news_api_util, db_service
 from service import github_jhu_data
@@ -15,6 +17,8 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 app = flask.Flask(__name__)
 logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d:%H:%M:%S', level=logging.INFO)
+
+cors = CORS(app, resources={r"/api/*": {"origins": "example.com"}})
 
 @app.route("/")
 def index():
@@ -40,28 +44,24 @@ def news_page():
     return flask.render_template('post.html', news=news_dict)
 
 
-@app.route("/news")
+@app.route("/api/news")
 def get_news():
-    query = flask.request.args.get('q')
-    query_in_title = flask.request.args.get('query_in_title', '')
-    from_date = datetime.datetime.now().strftime("%Y-%m-%d")
-    to_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    state = flask.request.args.get('state', 'US')
 
-    news_list = news_api_util.read_from_news_api(query=query, from_date=from_date, to_date=to_date,
-                                                 query_in_title=query_in_title)
+    news_list = news_api_util.read_all_serving_news(state)
     news_schema = NewsSchema()
     dump_news_list = [news_schema.dump(news) for news in news_list]
     return json.dumps(dump_news_list)
 
 
-@app.route("/hourly_data_refresh")
+@app.route("/api/hourly_data_refresh")
 def hourly_update():
     # According to GCP doc https://cloud.google.com/appengine/docs/flexible/nodejs/scheduling-jobs-with-cron-yaml
     # the cron job requests are always sent from "10.0.0.1"
-    if flask.request.headers.get('X-Appengine-Cron'):
-        app.logger.info("Loading daily report from github.")
-        github_jhu_data.daily_data_process()
-        return "Done"
+    app.logger.info("Loading daily report from github.")
+    github_jhu_data.daily_data_process()
+    news_api_util.update_news('coronavirus', 'US')
+    return "Done"
     app.logger.info("Access to /hourly_data_refresh from non-cron job is rejected.")
     return "Not Authorized"
 
@@ -80,7 +80,7 @@ class NewsSchema(SQLAlchemyAutoSchema):
         load_instance = True
 
 
-@app.route("/today_usa_data")
+@app.route("/api/today_usa_data")
 def get_today_usa_data():
     data_list, last_updated_at = github_jhu_data.read_usa_daily_report()
     sum_of_confirmed = 0

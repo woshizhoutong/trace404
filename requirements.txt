@@ -7,6 +7,7 @@ attrs
 newsapi-python
 APScheduler==3.6.3
 PyGithub
-SQLAlchemy==1.3.13
+SQLAlchemy
 pymysql
 marshmallow-sqlalchemy
+flask-cors
