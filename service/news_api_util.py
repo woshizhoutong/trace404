@@ -26,8 +26,10 @@ def read_from_news_api(query, from_date, to_date, query_in_title):
 
     news_list = []
     for item in response['articles']:
-        news_list.append(create_news(item))
-        db_service.save_news_list(news_list)
+        # filter the news if no image to show
+        if item['urlToImage']:
+            news_list.append(create_news(item))
+            db_service.save_news_list(news_list)
 
     return news_list
 

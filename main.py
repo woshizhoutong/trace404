@@ -58,7 +58,7 @@ def get_news():
 def hourly_update():
     # According to GCP doc https://cloud.google.com/appengine/docs/flexible/nodejs/scheduling-jobs-with-cron-yaml
     # the cron job requests are always sent from "10.0.0.1"
-    if not flask.request.headers.get('X-Appengine-Cron'):
+    if flask.request.headers.get('X-Appengine-Cron'):
         app.logger.info("Loading daily report from github.")
         github_jhu_data.daily_data_process()
         return "Done"
