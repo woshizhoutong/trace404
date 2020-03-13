@@ -58,10 +58,11 @@ def get_news():
 def hourly_update():
     # According to GCP doc https://cloud.google.com/appengine/docs/flexible/nodejs/scheduling-jobs-with-cron-yaml
     # the cron job requests are always sent from "10.0.0.1"
-    app.logger.info("Loading daily report from github.")
-    github_jhu_data.daily_data_process()
-    news_api_util.update_news('coronavirus', 'US')
-    return "Done"
+    if flask.request.headers.get('X-Appengine-Cron'):
+        app.logger.info("Loading daily report from github.")
+        github_jhu_data.daily_data_process()
+        news_api_util.update_news('coronavirus', 'US')
+        return "Done"
     app.logger.info("Access to /hourly_data_refresh from non-cron job is rejected.")
     return "Not Authorized"
 
