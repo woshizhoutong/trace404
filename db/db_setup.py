@@ -13,7 +13,7 @@ engine = sqlalchemy.create_engine(
     sqlalchemy.engine.url.URL(
         drivername='mysql+pymysql',
         username='root',
-        password='trace404!!',
+        password='',
         database='trace404_prod',
         query={
             'unix_socket': '/cloudsql/{}'.format(cloud_sql_connection_name)
