@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 # Init
-newsapi_clients = [NewsApiClient(api_key='7729d579e9b049c084574a43f35369b3')]
+newsapi_clients = [NewsApiClient(api_key='58d7c8cd9cf14565a96c1a7a73ba7611')]
 
 us_state_abbrev = {
     'Alabama': 'AL',
@@ -94,10 +94,12 @@ def update_news(query, country):
 
 
 def _update_state_news(query, from_date, to_date, country, state_list):
-    log.info("Reading usa country state wise news for {state_list}".format(state_list=state_list))
     delimiter = ' OR '
     state_query_str = delimiter.join('"' + item + '"' for item in state_list)
     state_query_str = query + ' AND (' + state_query_str + ')'
+
+    log.info(
+        "Reading usa country state wise news for {state_list}. Query is {query}".format(state_list=state_list, query=state_query_str))
 
     log.info("Reading usa country state wise news.")
     item_list = []
