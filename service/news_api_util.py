@@ -7,13 +7,14 @@ from newsapi.newsapi_exception import NewsAPIException
 from models.models import News
 from newsapi import NewsApiClient
 from service import db_service
+import itertools
+from hashlib import sha256
 
 log = logging.getLogger(__name__)
 
 
 # Init
-newsapi_clients = [NewsApiClient(api_key='7729d579e9b049c084574a43f35369b3')]
-
+newsapi_clients = [NewsApiClient(api_key='58d7c8cd9cf14565a96c1a7a73ba7611')]
 
 us_state_abbrev = {
     'Alabama': 'AL',
@@ -85,20 +86,66 @@ def update_news(query, country):
     log.info("Clearing all serving news, set their rank to 0. The newly read news from newsapi will be served")
     db_service.clear_all_serving_news()
 
+    _update_country_news(query, from_date, to_date, country)
+    state_list = list(us_state_abbrev.keys())
+    for i in range(0, 3):
+        state_list_sub = state_list[i*20:i*20+20]
+        _update_state_news(query, from_date, to_date, country, state_list_sub)
+
+
+def _update_state_news(query, from_date, to_date, country, state_list):
+    delimiter = ' OR '
+    state_query_str = delimiter.join('"' + item + '"' for item in state_list)
+    state_query_str = query + ' AND (' + state_query_str + ')'
+
+    log.info(
+        "Reading usa country state wise news for {state_list}. Query is {query}".format(state_list=state_list, query=state_query_str))
+
+    log.info("Reading usa country state wise news.")
+    item_list = []
+    response = _read_from_news_api(query='', from_date=from_date, to_date=to_date,
+                                   query_in_title=state_query_str)
+    item_list.extend(response['articles'])
+    log.info("There are totally {count} number of results".format(count=response['totalResults']))
+
+    response = _read_from_news_api(query='', from_date=from_date, to_date=to_date,
+                                   query_in_title=state_query_str)
+    item_list.extend(response['articles'])
+
+    state_news_list_map = dict.fromkeys(state_list, [])
+    filtered_news_counter = 0
+    for item in item_list:
+        # filter the news if no image to show
+        if not item['urlToImage']:
+            filtered_news_counter += 1
+            continue
+
+        for state_name in state_news_list_map.keys():
+            if state_name in item['title']:
+                news = _create_news(item, state=us_state_abbrev[state_name], country=country)
+                state_news_list_map[state_name].append(news)
+
+    log.info("{counter} number of news are filtered.".format(counter=filtered_news_counter))
+
+    flat_news_list = list(itertools.chain.from_iterable(state_news_list_map.values()))
+    if flat_news_list:
+        db_service.save_news_list(flat_news_list)
+
+
+def _update_country_news(query, from_date, to_date, country):
     log.info("Reading usa country wise news")
-    _read_from_news_api(query=query,
-                        from_date=from_date,
-                        to_date=to_date,
-                        state=country,
-                        country=country)
+    response = _read_from_news_api(query=query,
+                                   from_date=from_date,
+                                   to_date=to_date)
+    news_list = []
+    for item in response['articles']:
+        # filter the news if no image to show
+        if item['urlToImage']:
+            news_list.append(_create_news(item, country, country))
+            db_service.save_news_list(news_list)
 
-    log.info("Reading usa country state wise news")
-    for state in us_state_abbrev.keys():
-        log.info("Reading usa country state wise news for {state}.".format(state=state))
-        _read_from_news_api(query='', from_date=from_date, to_date=to_date, query_in_title=query + ' AND ' + state, state=state)
 
-
-def _read_from_news_api(query, from_date, to_date, query_in_title=None, state='', country=''):
+def _read_from_news_api(query, from_date, to_date, query_in_title=None, page_size=100):
     for client in newsapi_clients:
         try:
             if query_in_title:
@@ -106,7 +153,8 @@ def _read_from_news_api(query, from_date, to_date, query_in_title=None, state=''
                                                   from_param=from_date,
                                                   to=to_date,
                                                   language='en',
-                                                  sort_by='relevancy')
+                                                  sort_by='popularity',
+                                                 page_size=page_size)
             else:
                 response = client.get_everything(q=query,
                                                   from_param=from_date,
@@ -114,23 +162,16 @@ def _read_from_news_api(query, from_date, to_date, query_in_title=None, state=''
                                                   language='en',
                                                   sort_by='relevancy')
 
-            news_list = []
-            for item in response['articles']:
-                # filter the news if no image to show
-                if item['urlToImage']:
-                    log.info("News without image_url filtered, {news_id}.".format(news_id=item['url']))
-                    news_list.append(_create_news(item, state, country))
-                    db_service.save_news_list(news_list)
-
-            return
+            return response
         except NewsAPIException as e:
             log.warning("NewsApi threw exception {e}, The client api-key is {client}. ".format(e=str(e), client=str(client.auth.api_key)))
             continue
 
 
 def _create_news(data_item, state, country):
+    news_id = sha256((data_item['url'] + state + country).encode('utf-8')).hexdigest()
     return News(
-        id=data_item['url'],
+        id=news_id,
         title=data_item['title'],
         url=data_item['url'],
         img_url=data_item['urlToImage'],

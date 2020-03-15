@@ -84,7 +84,7 @@ def read_data_from_github(data_directory):
     try:
         log.info("Reading data in Github at {path}".format(path=data_directory))
         contents = repo.get_contents(data_directory)
-        data = contents.decoded_content.decode('UTF-8')
+        data = contents.decoded_content.decode('utf-8-sig')
         f = StringIO(data)
         reader = csv.DictReader(f)
         rows = list(reader)

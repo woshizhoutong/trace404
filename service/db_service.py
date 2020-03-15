@@ -72,8 +72,7 @@ def save_news_list(news_list):
         }
         l.append(entry)
     insert_stmt = insert(News).values(l)
-
-    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(url=insert_stmt.inserted.url)
+    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(rank_value=insert_stmt.inserted.rank_value)
     with engine.connect() as conn:
         conn.execute(on_duplicate_key_stmt)
 
@@ -95,10 +94,11 @@ def retrieve_all_serving_news(state_id):
     with engine.connect() as conn:
         result = conn.execute(sql, state_id=state_id).fetchall()
 
-    if not result:
+    if len(result) < 6:
         sql = text("select * from news where state = :state_id order by last_update limit 100")
         with engine.connect() as conn:
-            result = conn.execute(sql, state_id=state_id).fetchall()
+            result_2 = conn.execute(sql, state_id=state_id).fetchall()
+            result.extend(result_2[0:20])
 
     return result
 

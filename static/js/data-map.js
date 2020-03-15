@@ -67,7 +67,7 @@ function loadDataMap(mapData) {
             focus = geography.id;
 
             $.ajax({
-                url: '/api/news?state=' + geography.properties.name,
+                url: '/api/news?state=' + geography.id,
                 type: 'GET',
                 method: 'GET',
                 dataType: 'json',
@@ -75,6 +75,7 @@ function loadDataMap(mapData) {
                 $('#news_container').empty();
                 $('#news_location').text(geography.properties.name)
                 for (var i = 0; i < res.length; i++) {
+                  let id = res[i].id;
                   let title = res[i].title;
                   let url = res[i].url;
                   let img_url = res[i].img_url;
@@ -82,7 +83,7 @@ function loadDataMap(mapData) {
                   let publishedAt = res[i].publishedAt;
                   let source = res[i].source;
 
-                  let news_link = `/news_page?id=${url}`;
+                  let news_link = `/news_page/${id}`;
                   const news_element =
                   `<div class="col-lg-4 mb-4" >
                     <div class="entry2">
