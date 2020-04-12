@@ -7,11 +7,11 @@ function loadDataMap(mapData) {
       let fillKey;
       if (cases == 0) {
         fillkey = 'Default';
-      } else if (cases > 0 && cases < 5) {
+      } else if (cases > 0 && cases < 100) {
         fillKey = 'VeryLight';
-      } else if (cases >= 5 && cases <20) {
+      } else if (cases >= 100 && cases <1000) {
         fillKey = 'Light';
-      } else if (cases >= 20 && cases <100) {
+      } else if (cases >= 1000 && cases <10000) {
         fillKey = 'Medium';
       } else {
         fillKey = 'Heavy';

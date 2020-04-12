@@ -42,13 +42,12 @@ def retrieve_all_corona_virus_data(is_today):
 def retrieve_last_updated_time_corona_virus_data():
     with engine.connect() as conn:
         rows = conn.execute("""
-            SELECT source_file_published_date
+            SELECT MAX(source_file_published_date) as published_date
             FROM   data_items
-            limit 1
            """).fetchall()
         # timestamp is in second
-        if rows and rows[0]['source_file_published_date']:
-            return rows[0]['source_file_published_date']
+        if rows and rows[0]['published_date']:
+            return rows[0]['published_date']
         else:
             return None
 
