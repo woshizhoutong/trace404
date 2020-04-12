@@ -2,7 +2,7 @@
 
 ### How to deploy to GCP?
 1. Follow the tutorial in AppEngine.
-2. Command for deployment: gcloud app deploy app.yaml --project ordinal-avatar-270006 --no-promote
+2. Command for deployment: gcloud app deploy app.yaml --project trace404 --no-promote
 3. There must be a main.py to start the Flask App.
 
 I am also using GCP to auto manage the https ssl for my domain 404trace.com.

@@ -94,13 +94,13 @@ def read_data_from_github(data_directory):
 
     data_map = {}
     for row in rows:
-        country = row['Country/Region']
+        country = row['Country_Region']
         if country == 'US':
             # if confirmed from diamond princess, JHU mark it with (From Diamond Princess)
-            if "," not in row['Province/State'] and row['Province/State'].strip() in us_state_abbrev:
-                state = us_state_abbrev[row['Province/State'].strip()]
-            elif "," in row['Province/State']:
-                state = row['Province/State'].split(',')[1].strip()
+            if "," not in row['Province_State'] and row['Province_State'].strip() in us_state_abbrev:
+                state = us_state_abbrev[row['Province_State'].strip()]
+            elif "," in row['Province_State']:
+                state = row['Province_State'].split(',')[1].strip()
             else:
                 state = 'other'
 
